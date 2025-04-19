@@ -41,7 +41,6 @@ const logger = winston.createLogger({
   exitOnError: false
 })
 
-console.log(process.env.NODE_ENV)
 
 if (process.env.NODE_ENV !== "production") {
   logger.add(new winston.transports.Console({

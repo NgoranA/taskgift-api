@@ -4,11 +4,14 @@
  * Module dependencies.
  */
 
-import app from '../app.js';
+import http from 'node:http';
 import deb from 'debug'
-import http from 'http';
 
+import app from '../app.js';
+import logger from '../utils/logger.js';
+import { connectToDb, initialzeDbSchema } from '../config/db.js';
 const debug = deb('taskgift-api:server')
+
 /**
  * Get port from environment and store in Express.
  */
@@ -22,13 +25,13 @@ app.set('port', port);
 
 const server = http.createServer(app);
 
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+// /**
+//  * Listen on provided port, on all network interfaces.
+//  */
+//
+// server.listen(port);
+// server.on('error', onError);
+// server.on('listening', onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -60,17 +63,17 @@ let shuttingDown = false;
 
 const shutdown = (signal, value) => {
   if (shuttingDown) {
-    console.log(`Already shutting down. Received ${signal} again`);
+    logger.info(`Already shutting down. Received ${signal} again`);
     return;
   }
   shuttingDown = true
-  console.log(`Received ${signal}. Shutting down gracefully`)
+  logger.info(`Received ${signal}. Shutting down gracefully`)
   server.close((err) => {
     if (err) {
-      console.error("Error closing server", err)
+      logger.error("Error closing server", err)
       process.exit(1)
     } else {
-      console.log('server closed. Exiting the process.')
+      logger.info('server closed. Exiting the process.')
       process.exit(0)
     }
   })
@@ -78,7 +81,7 @@ const shutdown = (signal, value) => {
 
 Object.keys(signals).forEach((signal) => {
   process.on(signal, () => {
-    console.log(`Recieved ${signal}`)
+    logger.info(`Recieved ${signal}`)
     shutdown(signal, signals[signal])
   })
 })
@@ -99,15 +102,13 @@ function onError(error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+      logger.error(bind + ' requires elevated privileges');
       process.exit(1);
       break;
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      console.log("trying to make it run on the next available port")
-      server.listen(port += 1, () => {
-        console.log(`Server Now listening on port: ${port}`)
-      })
+      logger.error(bind + ' is already in use');
+      logger.info("trying to make it run on the next available port")
+      startServer()
       // process.exit(1);
       break;
     default:
@@ -126,3 +127,21 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+
+const startServer = async () => {
+  try {
+    logger.info(`Attempting to Start server on port ${port}`)
+    await connectToDb()
+    await initialzeDbSchema()
+    logger.info(`Starting server on port ${port}`)
+    server.listen(port);
+    server.on('error', onError);
+    server.on('listening', onListening);
+  } catch (error) {
+    logger.error('Failed during server startup process: ', error)
+    process.exit(1)
+  }
+}
+
+startServer()
