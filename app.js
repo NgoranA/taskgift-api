@@ -8,6 +8,7 @@ import morgan from 'morgan';
 
 import winstonLogger from "./utils/logger.js"
 
+import authRouter from "./routes/auth.js"
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
 
@@ -26,5 +27,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/auth', authRouter);
 
 export default app;
