@@ -1,6 +1,40 @@
 import { query } from "../config/db.js";
 import logger from "../utils/logger.js";
 
+
+export async function updateTask(req, res, nex) {
+  const taskId = req.params.id
+  const userId = req.user.id
+  const { title, description, completed, dueDate } = req.body
+
+  try {
+
+    const updateTaskQuery = `
+                            UPDATE tasks SET due_date= $1, title= $2, description= $3, completed= $4
+                            WHERE id=$5 AND owner_id=$6
+                            RETURNING *
+                            `
+    const result = await query(updateTaskQuery, [dueDate, title, description, completed, taskId, userId])
+
+    if (result.rows.length === 0) {
+      logger.warn(`Update failed: Task not found or access denied for task ID ${taskId}, user ID ${userId}`)
+      const checkTaskExistenceQuery = 'SELECT id FROM tasks WHERE id = $1'
+      const checkResult = await query(checkTaskExistenceQuery, [taskId])
+      if (checkResult.rows.length === 0) {
+        return res.status(404).json({ message: "Task does not exist" })
+      } else {
+        return res.status(403).json({ message: "You do not have permission to update this task" })
+      }
+    }
+
+    logger.info(`Task ${taskId} updated Successfully by user ${userId}`)
+    return res.json(result.rows[0])
+  } catch (error) {
+    logger.error(`Error Updating task ${taskId} for user ${userId} : `, error)
+    return res.status(error.status || 500).json({ message: error.message || "Server error while update the task" })
+  }
+}
+
 export async function getTaskById(req, res, nex) {
   const taskId = req.params.id
   const userId = req.user.id
