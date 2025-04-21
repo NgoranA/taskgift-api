@@ -26,7 +26,7 @@ export async function createTaskHandler(req, res, next) {
       VALUES ($1, $2, $3, $4)
       RETURNING *;
     `;
-    const result = await query(insertionQuery, [userId, title, description, due_date])
+    const result = await query(insertTaskQuery, [userId, title, description, due_date])
     const newTask = result.rows[0]
     logger.info(`Task created Successfully by the user ${userId} : ${newTask.id}`)
     return res.status(201).json(newTask)
