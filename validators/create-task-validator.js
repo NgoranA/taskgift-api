@@ -12,3 +12,16 @@ export const createTaskValidator = (req, res, next) => {
   }
   next();
 }
+
+
+const taskIdSchema = Joi.object({
+  id: Joi.string().required()
+})
+
+export const readTaskIdValidator = (req, res, next) => {
+  const { error } = taskIdSchema.validate(req.body)
+  if (error) {
+    return res.status(400).json({ message: error.details[0].message });
+  }
+  next();
+}
