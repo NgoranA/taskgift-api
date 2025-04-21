@@ -69,6 +69,31 @@ const initialzeDbSchema = async () => {
     await client.query('CREATE INDEX IF NOT EXISTS idx_tasks_user_id ON tasks(owner_id)');
 
     logger.info('Indexes have been ensured')
+
+    await client.query(`
+            CREATE OR REPLACE FUNCTION update_updated_at_column()
+            RETURNS TRIGGER AS $$
+            BEGIN
+               NEW.updated_at = NOW();
+               RETURN NEW;
+            END;
+            $$ language 'plpgsql';
+        `);
+    logger.debug('update_updated_at_column function ensured.');
+
+    await client.query(`
+        DO $$ BEGIN
+          IF NOT EXISTS ( SELECT 1 FROM pg_trigger WHERE tgname = 'update_tasks_updated_at') THEN 
+            CREATE TRIGGER update_tasks_updated_at
+            BEFORE UPDATE ON tasks 
+            FOR EACH ROW 
+            EXECUTE FUNCTION update_updated_at_column();
+          END IF;
+        END $$;
+      `)
+    logger.debug("Tasks update_at Trigger is checked and created")
+
+
   } catch (error) {
     logger.error(`Error while initializing the schema`, error)
     process.exit(1)
