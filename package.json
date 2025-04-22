@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "NODE_ENV=test  node --env-file=.env --test --experimental-test-coverage",
     "start": "node --env-file=.env ./bin/www",
     "dev": "nodemon --env-file=.env ./bin/www"
   },
@@ -19,6 +20,7 @@
     "morgan": "~1.10.0",
     "multer": "1.4.5-lts.2",
     "pg": "^8.14.1",
+    "supertest": "^7.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0"

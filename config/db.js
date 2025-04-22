@@ -3,9 +3,9 @@ import logger from "../utils/logger.js"
 
 const { Pool } = pg
 
-const { DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_PORT, NODE_ENV } = process.env
+const { DB_USER, DB_PASSWORD, DB_HOST, DB_NAME, DB_PORT, NODE_ENV, DB_NAME_TEST } = process.env
 
-if (!DB_HOST || !DB_PASSWORD || !DB_NAME || !DB_USER || !DB_PORT) {
+if (!DB_HOST || !DB_PASSWORD || !DB_NAME || !DB_USER || !DB_PORT || !DB_NAME_TEST) {
   logger.error("Database environment variables are missing! Check your .env file.")
   process.exit(1)
 }
@@ -13,7 +13,7 @@ if (!DB_HOST || !DB_PASSWORD || !DB_NAME || !DB_USER || !DB_PORT) {
 const pool = new Pool({
   user: DB_USER,
   host: DB_HOST,
-  database: DB_NAME,
+  database: NODE_ENV === "test" ? DB_NAME_TEST : DB_NAME,
   password: DB_PASSWORD,
   port: parseInt(DB_PORT, 10),
   connectionTimeoutMillis: 2000

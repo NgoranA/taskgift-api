@@ -25,17 +25,14 @@ export default async function registerHandler(req, res, next) {
     const newUser = newUserResult.rows[0]
     logger.info(`User registered successfully: ${newUser.id}`)
 
-    res.status(201).json({
+    return res.status(201).json({
       message: "User registered successfully",
       userId: {
         id: newUser.id
       }
     })
-
-
   } catch (error) {
     logger.error(`Error during user registration for ${email}: `, error)
     next(error)
   }
-
 }
