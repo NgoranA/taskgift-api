@@ -11,7 +11,7 @@ const router = express.Router()
 /**
  * @swagger
  * tags:
- *   name: Authentication,
+ *   name: Authentication
  *   description: User registration and login
  */
 
