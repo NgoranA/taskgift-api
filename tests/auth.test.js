@@ -128,3 +128,5 @@ describe('Authentication API (/auth)', () => {
     }
   });
 });
+
+export { }

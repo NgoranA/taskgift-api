@@ -2,7 +2,7 @@ import { describe, it, before, after, beforeEach } from 'node:test';
 import assert from 'node:assert';
 import request from 'supertest';
 import app from '../app.js'; // Import the Express app
-import { pool, query } from '../utils/db.js'; // Import pool for cleanup
+import { pool, query } from '../config/db.js'; // Import pool for cleanup
 
 const taskTestUser = {
   email: `tasktester_${Date.now()}@example.com`,
@@ -49,7 +49,7 @@ describe('Tasks API (/tasks)', () => {
     }
     console.log('--- Closing database pool after task tests ---');
     // Only close the pool if it's the last test file, or manage pool lifecycle differently
-    // await pool.end();
+    await pool.end();
   });
 
   // Optional: Clean tasks before each test if needed, but cascade delete might be enough
@@ -277,3 +277,4 @@ describe('Tasks API (/tasks)', () => {
 
 });
 
+export { }
