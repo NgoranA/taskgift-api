@@ -7,7 +7,8 @@ def reverse_string(text):
 
 
 def count_words(sentence):
-    return len(sentence.split())
+    
+    eturn len(sentence.split())
 
 
 def celsius_to_fahrenheit(celsius):
